@@ -33,7 +33,8 @@ def check_guess(guess, secret):
     if guess == secret:
         return "Win", "🎉 Correct!"
 
-    # Bug with return statement srtings. Fixed
+    # FIXME Bug #1: hints were inverted — "Go HIGHER" when guess was too high, "Go LOWER" when too low
+    # Bug #2 FIXED.
     try:
         if guess > secret:
             return "Too High", "📉 Go LOWER!"
@@ -156,7 +157,8 @@ if submit:
     else:
         st.session_state.history.append(guess_int)
 
-        # Bug number 2 fixed
+        # FIXME Bug #2: secret was cast to str on even attempts, breaking int comparison with guess.
+        # Bug #2 FIXED.
         secret = st.session_state.secret
 
         outcome, message = check_guess(guess_int, secret)

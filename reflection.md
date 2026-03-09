@@ -5,9 +5,12 @@ Answer each question in 3 to 5 sentences. Be specific and honest about what actu
 ## 1. What was broken when you started?
 
 - What did the game look like the first time you ran it?
+Answer: I noticed that when the application was booting, there are stickman icon that was changing until the application loadaded fully. The main page of the game was displayed and the game had apparent bugs.
+
 - List at least two concrete bugs you noticed at the start  
   (for example: "the secret number kept changing" or "the hints were backwards").
-
+Answer: Logic bug — hints were inverted ("Go HIGHER" when too high, "Go LOWER" when too low), this function originally should have worked the right way but it was deliberately bugged.
+ State bug — on even attempts, secret was cast to 'str' causing type-mismatch  
 ---
 
 ## 2. How did you use AI as a teammate?
