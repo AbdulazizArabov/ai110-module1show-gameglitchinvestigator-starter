@@ -52,17 +52,19 @@ def check_guess(guess, secret):
 def update_score(current_score: int, outcome: str, attempt_number: int):
     """Update score based on outcome and attempt number."""
     if outcome == "Win":
-        points = 100 - 10 * (attempt_number + 1)
+        # FIXME Bug #4: win score deducted 10 points per attempt including the first
+        # Fixed: first attempt scores 100, each subsequent attempt deducts 10
+        points = 100 - 10 * (attempt_number - 1)
         if points < 10:
             points = 10
         return current_score + points
 
+    # FIXME Bug #10: wrong guesses were deducting 5 points from score on every attempt
+    # Fixed: score only changes on a win — wrong guesses do not affect score
     if outcome == "Too High":
-        if attempt_number % 2 == 0:
-            return current_score + 5
-        return current_score - 5
+        return current_score
 
     if outcome == "Too Low":
-        return current_score - 5
+        return current_score
 
     return current_score
