@@ -33,9 +33,9 @@ State bug — on even attempts, secret was cast to 'str' causing type-mismatch
 - Describe at least one test you ran (manual or using pytest) and what it showed you about your code.
   Answer:   Test I ran: test_too_high using pytest
   
-    def test_too_high(): 
-      result = check_guess(80, 50)
-      assert result == "Too High"
+    def test_too_high():  /n
+      result = check_guess(80, 50) /n
+      assert result == "Too High" /n
 
   What it showed: When I first wrote this test, I accidentally swapped the arguments — check_guess(50, 80) — which made the test fail with:
 
