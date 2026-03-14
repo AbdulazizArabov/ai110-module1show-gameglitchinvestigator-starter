@@ -66,3 +66,5 @@ It wrote the code, ran away, and now the game is unplayable.
 ## 🚀 Stretch Features
 
 - [ ] [If you choose to complete Challenge 4, insert a screenshot of your Enhanced Game UI here]
+Challege 4 was not completed, instead Challenge 3: Professional Documentation was completed.
+This documentation is professional and detailed, it includes all the required sections and answers all the questions in a clear and concise manner. It also includes screenshots of the game and the test results, which help to illustrate the points made in the text. The language used is formal and technical, appropriate for a developer audience.

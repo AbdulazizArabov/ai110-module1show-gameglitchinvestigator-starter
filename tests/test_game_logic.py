@@ -217,3 +217,115 @@ def test_bug13_score_resets_on_new_game():
     at.run()
     at.button[1].click().run()
     assert at.session_state.score == 0, "Bug #13: score should reset to 0 on New Game"
+
+# ── Attempts left display decrements correctly after each guess ───────────────
+
+def test_attempts_left_decrements_after_guess():
+    # After one valid wrong guess, attempts left should decrease by 1
+    at = AppTest.from_file("../app.py").run()
+    at.session_state.secret = 99
+    at.run()
+    at.text_input[0].set_value("1")
+    at.button[0].click().run()
+    assert at.session_state.attempts == 1, \
+        "Attempts left: counter should be 1 after first guess"
+
+def test_attempts_left_display_not_stale():
+    # After a valid guess, info should reflect updated attempts count
+    at = AppTest.from_file("../app.py").run()
+    at.session_state.secret = 99
+    at.run()
+    at.text_input[0].set_value("1")
+    at.button[0].click().run()
+    for info_widget in at.info:
+        assert "Attempts left: 7" in info_widget.value, \
+            "Attempts left should show 7 after first guess in Normal mode (8 - 1)"
+
+# ── Hint stored in session state after guess ──────────────────────────────────
+
+def test_hint_stored_in_session_state_too_low():
+    at = AppTest.from_file("../app.py").run()
+    at.session_state.secret = 99
+    at.run()
+    at.text_input[0].set_value("1")
+    at.button[0].click().run()
+    assert at.session_state.last_hint == "📈 Go HIGHER!", \
+        "last_hint should be set to 'Go HIGHER!' when guess is too low"
+
+def test_hint_stored_in_session_state_too_high():
+    at = AppTest.from_file("../app.py").run()
+    at.session_state.secret = 1
+    at.run()
+    at.text_input[0].set_value("99")
+    at.button[0].click().run()
+    assert at.session_state.last_hint == "📉 Go LOWER!", \
+        "last_hint should be set to 'Go LOWER!' when guess is too high"
+
+def test_new_game_clears_last_hint():
+    # New Game should clear the last hint
+    at = AppTest.from_file("../app.py").run()
+    at.session_state.last_hint = "📈 Go HIGHER!"
+    at.run()
+    at.button[1].click().run()
+    assert at.session_state.last_hint is None, \
+        "last_hint should be None after New Game"
+
+# ── End message stored in session state on win/lose ───────────────────────────
+
+def test_end_message_set_on_win():
+    # Winning should store end_message with secret and score
+    at = AppTest.from_file("../app.py").run()
+    at.session_state.secret = 42
+    at.run()
+    at.text_input[0].set_value("42")
+    at.button[0].click().run()
+    assert at.session_state.end_message is not None, \
+        "end_message should be set after winning"
+    assert "42" in at.session_state.end_message, \
+        "end_message should contain the secret number"
+
+def test_end_message_set_on_loss():
+    # Losing should store end_message
+    at = AppTest.from_file("../app.py").run()
+    at.session_state.secret = 99
+    at.run()
+    for i in range(1, 9):
+        if at.session_state.status != "playing":
+            break
+        at.text_input[0].set_value(str(i))
+        at.button[0].click().run()
+    assert at.session_state.end_message is not None, \
+        "end_message should be set after losing"
+
+def test_new_game_clears_end_message():
+    # New Game should clear end_message from previous game
+    at = AppTest.from_file("../app.py").run()
+    at.session_state.end_message = "You won! The secret was 42. Final score: 100"
+    at.run()
+    at.button[1].click().run()
+    assert at.session_state.end_message is None, \
+        "end_message should be None after New Game"
+
+# ── Submit button disabled when game is over ──────────────────────────────────
+
+def test_submit_disabled_when_lost():
+    # Submit button should be disabled after game is lost
+    at = AppTest.from_file("../app.py").run()
+    at.session_state.status = "lost"
+    at.run()
+    assert at.button[0].disabled, \
+        "Submit button should be disabled when status is 'lost'"
+
+def test_submit_disabled_when_won():
+    # Submit button should be disabled after game is won
+    at = AppTest.from_file("../app.py").run()
+    at.session_state.status = "won"
+    at.run()
+    assert at.button[0].disabled, \
+        "Submit button should be disabled when status is 'won'"
+
+def test_submit_enabled_when_playing():
+    # Submit button should be enabled during an active game
+    at = AppTest.from_file("../app.py").run()
+    assert not at.button[0].disabled, \
+        "Submit button should be enabled when status is 'playing'"

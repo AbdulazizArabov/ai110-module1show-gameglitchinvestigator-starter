@@ -57,6 +57,12 @@ if "game_count" not in st.session_state:
     # FIXME Bug #8: input field was not cleared on New Game — fixed by tracking game_count in key
     st.session_state.game_count = 0
 
+if "last_hint" not in st.session_state:
+    st.session_state.last_hint = None
+
+if "end_message" not in st.session_state:
+    st.session_state.end_message = None
+
 st.subheader("Make a guess")
 
 st.info(
@@ -74,11 +80,15 @@ raw_guess = st.text_input(
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    submit = st.button("Submit Guess 🚀")
+    
+    submit = st.button("Submit Guess 🚀", disabled=st.session_state.status != "playing")
 with col2:
     new_game = st.button("New Game 🔁")
 with col3:
     show_hint = st.checkbox("Show hint", value=True)
+
+if show_hint and st.session_state.last_hint:
+    st.warning(st.session_state.last_hint)
 
 if new_game:
     # FIXME Bug #6: New Game did not reset status, history, and used hardcoded range instead of difficulty range
@@ -88,15 +98,18 @@ if new_game:
     st.session_state.status = "playing"
     st.session_state.history = []
     st.session_state.score = 0
+    st.session_state.last_hint = None
+    st.session_state.end_message = None
     st.session_state.game_count += 1  # changes input key → clears the text input
     st.success("New game started.")
     st.rerun()
 
 if st.session_state.status != "playing":
     if st.session_state.status == "won":
-        st.success("You already won. Start a new game to play again.")
+        st.balloons()
+        st.success(st.session_state.end_message or "You already won. Start a new game to play again.")
     else:
-        st.error("Game over. Start a new game to try again.")
+        st.error(st.session_state.end_message or "Game over. Start a new game to try again.")
     st.stop()
 
 if submit:
@@ -117,8 +130,7 @@ if submit:
 
         outcome = check_guess(guess_int, secret)
 
-        if show_hint:
-            st.warning(HINT_MESSAGES[outcome])
+        st.session_state.last_hint = HINT_MESSAGES[outcome]
 
         st.session_state.score = update_score(
             current_score=st.session_state.score,
@@ -127,20 +139,21 @@ if submit:
         )
 
         if outcome == "Win":
-            st.balloons()
             st.session_state.status = "won"
-            st.success(
+            st.session_state.end_message = (
                 f"You won! The secret was {st.session_state.secret}. "
                 f"Final score: {st.session_state.score}"
             )
+            st.rerun()
         else:
             if st.session_state.attempts >= attempt_limit:
                 st.session_state.status = "lost"
-                st.error(
+                st.session_state.end_message = (
                     f"Out of attempts! "
                     f"The secret was {st.session_state.secret}. "
                     f"Score: {st.session_state.score}"
                 )
+            st.rerun()
 
 # FIXME Bug #9: debug info was above the submit block — history always showed one guess behind
 # Fixed: moved to bottom so history reflects the current attempt
